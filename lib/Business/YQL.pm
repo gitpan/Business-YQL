@@ -1,7 +1,7 @@
 package Business::YQL;
 use Moo;
 
-our $VERSION = '0.0001'; # VERSION
+our $VERSION = '0.0002'; # VERSION
 
 use HTTP::Request::Common qw(GET POST);
 use URI;
@@ -10,7 +10,7 @@ use LWP::UserAgent;
 use JSON::Any;
 use Carp qw(croak);
 use Log::Any qw($log);
-use TryCatch;
+use Try::Tiny;
 
 has scheme  => (is => 'ro', default => 'http'                           );
 has domain  => (is => 'ro', default => 'query.yahooapis.com'            );
@@ -87,7 +87,7 @@ sub _log_content {
             $log->trace($content);
         } catch {
             $log->error('Invalid JSON: ' . $content);
-        }
+        };
     }
 }
 
@@ -122,7 +122,7 @@ Business::YQL - YQL Perl interface for the Y! Query API
 
 =head1 VERSION
 
-version 0.0001
+version 0.0002
 
 =head1 SYNOPSIS
 
