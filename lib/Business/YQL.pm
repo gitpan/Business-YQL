@@ -1,13 +1,13 @@
 package Business::YQL;
 use Moo;
 
-our $VERSION = '0.0002'; # VERSION
+our $VERSION = '0.0003'; # VERSION
 
 use HTTP::Request::Common qw(GET POST);
 use URI;
 use URI::QueryParam;
 use LWP::UserAgent;
-use JSON::Any;
+use JSON qw(to_json from_json);
 use Carp qw(croak);
 use Log::Any qw($log);
 use Try::Tiny;
@@ -17,8 +17,6 @@ has domain  => (is => 'ro', default => 'query.yahooapis.com'            );
 has version => (is => 'ro', default => 'v1'                             );
 has timeout => (is => 'ro', default => 10                               );
 has retries => (is => 'ro', default => 3                                );
-
-has json    => (is => 'ro', lazy => 1, default => sub { JSON::Any->new });
 
 has uri     => (
     is      => 'ro',
@@ -73,17 +71,16 @@ sub _req {
         sleep 1;
         $res = $self->ua->request($req);
     }
-    return $self->json->decode($res->content)
+    return from_json $res->content
         if $res->code =~ /^4/x;
-    return $res->content ?
-        $self->json->decode($res->content)->{query}{results} : 1;
+    return $res->content ? from_json($res->content)->{query}{results} : 1;
 }
 
 sub _log_content {
     my ($self, $content) = @_;
     if (length $content) {
         try {
-            $content = $self->json->encode($self->json->decode($content));
+            $content = to_json from_json $content;
             $log->trace($content);
         } catch {
             $log->error('Invalid JSON: ' . $content);
@@ -122,7 +119,7 @@ Business::YQL - YQL Perl interface for the Y! Query API
 
 =head1 VERSION
 
-version 0.0002
+version 0.0003
 
 =head1 SYNOPSIS
 
