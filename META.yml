@@ -34,4 +34,4 @@ requires:
   Try::Tiny: 0
   URI: 0
   URI::QueryParam: 0
-version: 0.0003
+version: 0.0004
